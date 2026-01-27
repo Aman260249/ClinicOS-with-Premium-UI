@@ -1,0 +1,9 @@
+/* src/index.css */
+@import "tailwindcss";
+
+/* Jo bhi default margin/padding hai use hata do taaki app puri screen cover kare */
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
