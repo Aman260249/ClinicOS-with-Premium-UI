@@ -31,7 +31,7 @@ app.use(cors({
 }));
 
 // ✅ VERY IMPORTANT: Preflight handle
-app.options("*", cors());
+// app.options("*", cors());
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
