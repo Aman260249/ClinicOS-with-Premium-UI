@@ -25,14 +25,14 @@ const AddPatientModal = ({ isOpen, onClose, refreshData, editData }) => {
     try {
       if (editData) {
         // UPDATE LOGIC
-        await axios.put(`http://localhost:5000/api/patients/update/${editData._id}`, 
+        await axios.put(`${import.meta.env.VITE_API_URL}/api/patients/update/${editData._id}`, 
           { name, phone },
           { headers: { Authorization: `Bearer ${token}` } }
         );
         toast.success("Patient updated!");
       } else {
         // ADD LOGIC
-        await axios.post('http://localhost:5000/api/patients/add', 
+        await axios.post('${import.meta.env.VITE_API_URL}/api/patients/add', 
           { name, phone },
           { headers: { Authorization: `Bearer ${token}` } }
         );

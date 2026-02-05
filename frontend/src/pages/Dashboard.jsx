@@ -26,7 +26,7 @@ const Dashboard = () => {
     setLoading(true);
     const token = localStorage.getItem('token');
     try {
-      const res = await axios.get(`http://localhost:5000/api/patients/all?t=${new Date().getTime()}`, {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/patients/all?t=${new Date().getTime()}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setPatients(res.data);
@@ -43,7 +43,7 @@ const Dashboard = () => {
     const token = localStorage.getItem('token');
     const loadingToast = toast.loading(`Updating...`);
     try {
-      await axios.put(`http://localhost:5000/api/patients/update-status/${id}`, 
+      await axios.put(`${import.meta.env.VITE_API_URL}/api/patients/update-status/${id}`, 
         { status: newStatus }, 
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -82,7 +82,7 @@ const Dashboard = () => {
   const executeDelete = async () => {
     const token = localStorage.getItem('token');
     try {
-      await axios.delete(`http://localhost:5000/api/patients/delete/${patientToDelete}`, {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/patients/delete/${patientToDelete}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success("Deleted!");
