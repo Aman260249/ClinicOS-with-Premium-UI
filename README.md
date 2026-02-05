@@ -76,4 +76,10 @@ npm run dev
 📝 License
 This project is open-source and available under the MIT License.
 
-Developed with ❤️ by CodelabBro
+Developed with ❤️ by CodelabBro 
+
+
+email
+"codelab@clinic.com"
+password
+"Aman@1234"
