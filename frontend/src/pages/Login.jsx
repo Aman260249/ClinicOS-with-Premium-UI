@@ -14,7 +14,8 @@ const Login = () => {
     const loadingToast = toast.loading("Verifying credentials...");
     try {
       // Axios call aise honi chahiye:
-const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, { email, password });
+      const baseURL = import.meta.env.VITE_API_URL.replace(/\/$/, "");
+const res = await axios.post(`${baseURL}/api/auth/login`, { email, password });
       localStorage.setItem('token', res.data.token);
       toast.success("Welcome to ClinicOS", { id: loadingToast });
       navigate('/dashboard'); 
