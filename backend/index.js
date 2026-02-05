@@ -10,7 +10,8 @@ const app = express();
 app.use(express.json()); // Body parser: JSON data read karne ke liye
 
 app.use(cors({
-  origin: ["https://your-frontend-link.vercel.app", "http://localhost:5173"], // Vercel ka URL yahan dalo
+  origin: "http://localhost:5174", // Tumhara frontend port
+  methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 })); // Cross-Origin: Frontend ko permission dene ke liye
 
