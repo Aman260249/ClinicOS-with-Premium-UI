@@ -5,9 +5,15 @@ require('dotenv').config();
 
 const app = express();
 
+
 // 1. Middleware (Sikhna hai: Ye request ko process karne se pehle check karta hai)
 app.use(express.json()); // Body parser: JSON data read karne ke liye
-app.use(cors()); // Cross-Origin: Frontend ko permission dene ke liye
+
+app.use(cors({
+  origin: ["https://your-frontend-link.vercel.app", "http://localhost:5173"], // Vercel ka URL yahan dalo
+  credentials: true
+})); // Cross-Origin: Frontend ko permission dene ke liye
+
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/patients', require('./routes/patientRoutes'));
 
