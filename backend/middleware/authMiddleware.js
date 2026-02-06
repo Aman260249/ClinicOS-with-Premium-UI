@@ -5,11 +5,15 @@ const protect = (req, res, next) => {
 
     if (token && token.startsWith('Bearer')) {
         try {
-            token = token.split(' ')[1]; // "Bearer [Token]" se token nikalna
-            const decoded = jwt.verify(token, 'secret_key'); // Token check karna
+            token = token.split(' ')[1]; 
+            
+            // ✅ Yahan tumhari asli key 'Codelab_Secret_2026' honi chahiye
+            const decoded = jwt.verify(token, process.env.JWT_SECRET || 'Codelab_Secret_2026'); 
+            
             req.user = decoded; 
-            next(); // Agar sahi hai, toh aage badho (Controller tak jao)
+            next(); 
         } catch (error) {
+            console.error("JWT Verification Failed:", error.message);
             res.status(401).json({ message: "Not authorized, token failed" });
         }
     } else {

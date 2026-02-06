@@ -38,7 +38,7 @@ exports.login = async (req, res) => {
             return res.status(401).json({ message: "Invalid Email or Password" });
         }
 
-        const secret = process.env.JWT_SECRET || 'secret_key';
+        const secret = process.env.JWT_SECRET || 'Codelab_Secret_2026';
         const token = jwt.sign({ id: user._id }, secret, { expiresIn: '1d' });
         
         res.json({ 
