@@ -1,28 +1,32 @@
 const Patient = require('../models/Patient');
 
-// 1. Get All Patients (Ab saare patients milenge, History blank nahi rahegi)
+// 1. Get All Patients
 exports.getPatients = async (req, res) => {
   try {
-    // adminId filter zaroori hai taaki har doctor ko apna data dikhe
     const patients = await Patient.find({ adminId: req.user.id }).sort({ createdAt: -1 });
-    console.log("Total Patients found in DB:", patients.length);
     res.status(200).json(patients);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
-// 2. Add New Patient
+// 2. Add New Patient (With Auto-Queue Logic)
 exports.addPatient = async (req, res) => {
   try {
-    const { name, phone, queueNumber } = req.body;
+    const { name, phone } = req.body;
+    
+    // Auto-calculate Queue Number: Aaj kitne patients aaye hain?
+    const count = await Patient.countDocuments({ adminId: req.user.id });
+    const nextQueueNumber = count + 1;
+
     const newPatient = new Patient({
       name,
       phone,
-      queueNumber,
+      queueNumber: nextQueueNumber, // Auto assigned
       adminId: req.user.id,
-      status: 'Waiting' // Default status
+      status: 'Waiting'
     });
+
     const savedPatient = await newPatient.save();
     res.status(201).json(savedPatient);
   } catch (err) {
@@ -30,19 +34,20 @@ exports.addPatient = async (req, res) => {
   }
 };
 
-// 3. Update Status (Start / Mark Done logic)
+// 3. Update Status
 exports.updateStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
 
-    const updatedPatient = await Patient.findByIdAndUpdate(
-      id,
+    // Security check: Find by ID AND AdminId
+    const updatedPatient = await Patient.findOneAndUpdate(
+      { _id: id, adminId: req.user.id }, 
       { $set: { status: status } },
-      { new: true, runValidators: true }
+      { new: true }
     );
 
-    console.log("Updated DB Record:", updatedPatient);
+    if (!updatedPatient) return res.status(404).json({ message: "Patient not found or unauthorized" });
     res.status(200).json(updatedPatient);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -52,8 +57,8 @@ exports.updateStatus = async (req, res) => {
 // 4. Update Patient (Edit Profile)
 exports.updatePatient = async (req, res) => {
   try {
-    const updated = await Patient.findByIdAndUpdate(
-      req.params.id,
+    const updated = await Patient.findOneAndUpdate(
+      { _id: req.params.id, adminId: req.user.id },
       { $set: req.body },
       { new: true }
     );
@@ -66,7 +71,8 @@ exports.updatePatient = async (req, res) => {
 // 5. Delete Patient
 exports.deletePatient = async (req, res) => {
   try {
-    await Patient.findByIdAndDelete(req.params.id);
+    const deleted = await Patient.findOneAndDelete({ _id: req.params.id, adminId: req.user.id });
+    if (!deleted) return res.status(404).json({ message: "Not authorized" });
     res.json({ message: "Patient deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });

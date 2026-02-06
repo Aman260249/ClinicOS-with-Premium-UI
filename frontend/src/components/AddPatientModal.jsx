@@ -22,17 +22,20 @@ const AddPatientModal = ({ isOpen, onClose, refreshData, editData }) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
     
+    // URL Cleanup: Taki extra slash se error na aaye
+    const baseURL = import.meta.env.VITE_API_URL.replace(/\/$/, "");
+
     try {
       if (editData) {
-        // UPDATE LOGIC
-        await axios.put(`${import.meta.env.VITE_API_URL}/api/patients/update/${editData._id}`, 
+        // UPDATE LOGIC (Backticks fixed)
+        await axios.put(`${baseURL}/api/patients/update/${editData._id}`, 
           { name, phone },
           { headers: { Authorization: `Bearer ${token}` } }
         );
         toast.success("Patient updated!");
       } else {
-        // ADD LOGIC
-        await axios.post('${import.meta.env.VITE_API_URL}/api/patients/add', 
+        // ADD LOGIC (Single quotes fixed to Backticks)
+        await axios.post(`${baseURL}/api/patients/add`, 
           { name, phone },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -41,6 +44,7 @@ const AddPatientModal = ({ isOpen, onClose, refreshData, editData }) => {
       refreshData();
       onClose();
     } catch (err) {
+      console.error("API Error:", err.response?.data || err.message);
       toast.error(editData ? "Update failed" : "Add failed");
     }
   };

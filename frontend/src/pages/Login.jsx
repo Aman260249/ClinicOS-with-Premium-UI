@@ -12,19 +12,36 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     const loadingToast = toast.loading("Verifying credentials...");
+    
     try {
-      // Axios call aise honi chahiye:
-      const baseURL = import.meta.env.VITE_API_URL.replace(/\/$/, "");
-const res = await axios.post(`${baseURL}/api/auth/login`, { email, password });
+      // 1. Safe URL handling: Pehle check karo URL exist karta hai ya nahi
+      const apiUrl = import.meta.env.VITE_API_URL;
+      
+      if (!apiUrl) {
+        toast.error("API URL is not defined in .env file!", { id: loadingToast });
+        return;
+      }
+
+      const baseURL = apiUrl.replace(/\/$/, "");
+
+      // 2. Axios Call
+      const res = await axios.post(`${baseURL}/api/auth/login`, { email, password });
+      
+      // 3. Success Handling
       localStorage.setItem('token', res.data.token);
       toast.success("Welcome to ClinicOS", { id: loadingToast });
-      navigate('/dashboard'); 
+      
+      // Thoda sa delay navigate karne se pehle (Optional but feels smooth)
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 500);
+
     } catch (err) {
-      const errorMsg = err.response?.data?.message || "Login failed";
+      console.error("Login Error Details:", err.response?.data);
+      const errorMsg = err.response?.data?.message || "Login failed - Server unreachable";
       toast.error(errorMsg, { id: loadingToast });
     }
-  };
-
+};
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] font-sans selection:bg-indigo-100 p-4 sm:p-6">
       <Toaster position="top-right" />

@@ -21,12 +21,16 @@ const Dashboard = () => {
   const [view, setView] = useState('live'); 
   const navigate = useNavigate();
 
-  // --- LOGIC (REMAINED UNTOUCHED) ---
+  // Sabhi calls ke liye common Clean URL
+  const baseURL = import.meta.env.VITE_API_URL.replace(/\/$/, "");
+
+  // --- LOGIC UPDATED WITH BASEURL ---
   const getData = async () => {
     setLoading(true);
     const token = localStorage.getItem('token');
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/patients/all?t=${new Date().getTime()}`, {
+      // URL cleaned with baseURL
+      const res = await axios.get(`${baseURL}/api/patients/all?t=${new Date().getTime()}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setPatients(res.data);
@@ -43,7 +47,8 @@ const Dashboard = () => {
     const token = localStorage.getItem('token');
     const loadingToast = toast.loading(`Updating...`);
     try {
-      await axios.put(`${import.meta.env.VITE_API_URL}/api/patients/update-status/${id}`, 
+      // URL cleaned with baseURL
+      await axios.put(`${baseURL}/api/patients/update-status/${id}`, 
         { status: newStatus }, 
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -54,43 +59,20 @@ const Dashboard = () => {
     }
   };
 
-  const completedCount = patients.filter(p => (p.status || '').toLowerCase().trim() === 'completed').length;
-  const waitingCount = patients.filter(p => (p.status || 'Waiting').toLowerCase().trim() !== 'completed').length;
-  const efficiency = patients.length > 0 ? Math.round((completedCount / patients.length) * 100) : 0;
-
-  const displayPatients = patients.filter(p => {
-    const nameMatch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const currentStatus = (p.status || 'Waiting').toLowerCase().trim();
-    if (view === 'live') return nameMatch && currentStatus !== 'completed';
-    return nameMatch && currentStatus === 'completed';
-  });
-
-  const downloadHistoryReport = () => {
-    const completedOnes = patients.filter(p => (p.status || '').toLowerCase().trim() === 'completed');
-    if (completedOnes.length === 0) return toast.error("No data!");
-    const ws = XLSX.utils.json_to_sheet(completedOnes.map(p => ({
-      'Name': p.name, 'Phone': p.phone, 'Queue': p.queueNumber, 'Date': new Date(p.createdAt).toLocaleDateString()
-    })));
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "History");
-    XLSX.writeFile(wb, `ClinicOS_Report.xlsx`);
-  };
-
-  const handleEdit = (p) => { setSelectedPatient(p); setIsModalOpen(true); };
-  const handleCloseModal = () => { setIsModalOpen(false); setSelectedPatient(null); };
-  const confirmDelete = (id) => { setPatientToDelete(id); setShowDeleteModal(true); };
   const executeDelete = async () => {
     const token = localStorage.getItem('token');
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/api/patients/delete/${patientToDelete}`, {
+      // URL cleaned with baseURL
+      await axios.delete(`${baseURL}/api/patients/delete/${patientToDelete}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success("Deleted!");
       setShowDeleteModal(false);
       await getData();
-    } catch (err) { toast.error("Error!"); }
+    } catch (err) { 
+      toast.error("Error deleting patient!"); 
+    }
   };
-
   // --- UI START ---
   return (
     <div className="min-h-screen bg-[#F0F4F8] p-4 lg:p-8 font-sans selection:bg-indigo-100 selection:text-indigo-700">
