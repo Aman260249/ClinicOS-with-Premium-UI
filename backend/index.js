@@ -1,4 +1,5 @@
-require('dotenv').config();
+const path = require('path'); // Pehle path ko define karo
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -6,6 +7,8 @@ const cors = require('cors');
 const app = express();
 app.use(express.json());
 app.use(cors({ origin: "*", credentials: true }));
+
+console.log("Checking MONGO_URI:", process.env.MONGO_URI ? "Found ✅" : "Not Found ❌");
 
 // Database Connection Logic
 const mongoURI = process.env.MONGO_URI;
